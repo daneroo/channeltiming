@@ -28,6 +28,8 @@ func BenchmarkChanInt(b *testing.B) {
 	for i := range ch {
 		sum += i
 	}
+	b.Errorf("I can make an error")
+
 }
 func BenchmarkChanIntPointer(b *testing.B) {
 	ch := make(chan *int)
