@@ -10,15 +10,14 @@ const (
 	// how many ints we'll send across the channel
 	count int = 1e7
 	// this is the slice capacity
-	batch int = 100
+	batch int = 10
 )
 
-func main() {
-	start := time.Now()
+func GenerateSlices(n int, batch int) chan []int {
 	ch := make(chan []int)
 	go func() {
 		slice := make([]int, 0, batch)
-		for i := 1; i <= count; i++ {
+		for i := 1; i <= n; i++ {
 			slice = append(slice, i)
 			if len(slice) == cap(slice) {
 				ch <- slice
@@ -28,6 +27,12 @@ func main() {
 		ch <- slice
 		close(ch)
 	}()
+	return ch
+}
+
+func main() {
+	start := time.Now()
+	ch := GenerateSlices(count, batch)
 	sum := 0
 	for slice := range ch {
 		for _, i := range slice {
