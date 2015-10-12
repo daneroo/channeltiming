@@ -40,7 +40,7 @@ func TimeTrack(start time.Time, what string, n int) {
 	if SilentTimeTrack {
 		return
 	}
-	name := fmt.Sprintf("Chanel of %10s", what)
+	name := fmt.Sprintf("Chanel of %12s", what)
 	elapsed := time.Since(start)
 	if n > 0 {
 		rate := float64(n) / elapsed.Seconds()
@@ -53,6 +53,9 @@ func TimeTrack(start time.Time, what string, n int) {
 func main() {
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
 	fmt.Printf("Sizeof(int): %d\n", sizeOfInt)
+	fmt.Printf("time.Unix(1e7): %v\n", time.Unix(1e7, 0))
+	fmt.Printf("time.Unix(1e8): %v\n", time.Unix(1e8, 0))
+	fmt.Printf("time.Unix(1e9): %v\n", time.Unix(1e9, 0))
 
 	var count int = 1e7
 
@@ -63,5 +66,7 @@ func main() {
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 100), 100, count))
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e3), 1e3, count))
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e4), 1e4, count))
+
+	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e3), 1e3, count))
 
 }

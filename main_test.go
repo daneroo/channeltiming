@@ -73,7 +73,6 @@ func benchForSliceSize(batch int, b *testing.B) {
 	if err := CheckSum(b.N, ConsumeSlices(GenerateSlices(b.N, batch), batch, b.N)); err != nil {
 		b.Error(err)
 	}
-
 }
 
 func BenchmarkChanIntSlices1(b *testing.B) {
@@ -90,4 +89,13 @@ func BenchmarkChanIntSlices1000(b *testing.B) {
 }
 func BenchmarkChanIntSlices10000(b *testing.B) {
 	benchForSliceSize(10000, b)
+}
+
+func BenchmarkChanEntries1000(b *testing.B) {
+	SilentTimeTrack = true
+	b.SetBytes(int64(sizeOfInt))
+	batch := 1000
+	if err := CheckSum(b.N, ConsumeEntries(GenerateEntries(b.N, batch), batch, b.N)); err != nil {
+		b.Error(err)
+	}
 }
