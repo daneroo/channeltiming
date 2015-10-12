@@ -1,3 +1,11 @@
+# Channel Communications Timing Experiment
+
+## TODO
+- Refactor main (to reuse in tests)
+- Make tests pass (including Benchmarks)
+
+
+## Presentation
 Question:
   -I am reading 7,000,000 records from a MySQL database (in a goroutine)
   -This takes about 9.5s
