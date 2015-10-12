@@ -4,65 +4,90 @@ import (
 	"testing"
 )
 
-func TestSum(t *testing.T) {
-	n := 100
+func baselineSum(n int) error {
 	sum := 0
 	for i := 1; i <= n; i++ {
 		sum += i
 	}
-	expected := n * (n + 1) / 2
-	if sum != expected {
-		t.Errorf("Sum is wrong")
+	return CheckSum(n, sum)
+}
+
+func TestSum(t *testing.T) {
+	n := 100
+	if err := baselineSum(n); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestChanInt(t *testing.T) {
+	SilentTimeTrack = true
+	var n int = 1e5
+	if err := CheckSum(n, ConsumeInts(GenerateInts(n), n)); err != nil {
+		t.Error(err)
+	}
+}
+func TestChanIntPointer(t *testing.T) {
+	SilentTimeTrack = true
+	var n int = 1e5
+	if err := CheckSum(n, ConsumeIntPointers(GenerateIntPointers(n), n)); err != nil {
+		t.Error(err)
+	}
+}
+func TestChanInSlices100(t *testing.T) {
+	SilentTimeTrack = true
+	var n int = 1e5
+	var batch int = 100
+	if err := CheckSum(n, ConsumeSlices(GenerateSlices(n, batch), batch, n)); err != nil {
+		t.Error(err)
+	}
+}
+
+func BenchmarkSum(b *testing.B) {
+	SilentTimeTrack = true
+	b.SetBytes(int64(sizeOfInt))
+	if err := baselineSum(b.N); err != nil {
+		b.Error(err)
 	}
 }
 
 func BenchmarkChanInt(b *testing.B) {
-	ch := make(chan int)
-	go func() {
-		for i := 0; i < b.N; i++ {
-			ch <- i
-		}
-		close(ch)
-	}()
-	sum := 0
-	for i := range ch {
-		sum += i
+	SilentTimeTrack = true
+	b.SetBytes(int64(sizeOfInt))
+	if err := CheckSum(b.N, ConsumeInts(GenerateInts(b.N), b.N)); err != nil {
+		b.Error(err)
 	}
-	b.Errorf("I can make an error")
+}
+
+func BenchmarkChanIntPointer(b *testing.B) {
+	SilentTimeTrack = true
+	b.SetBytes(int64(sizeOfIntPointer))
+	if err := CheckSum(b.N, ConsumeIntPointers(GenerateIntPointers(b.N), b.N)); err != nil {
+		b.Error(err)
+	}
+}
+
+func benchForSliceSize(batch int, b *testing.B) {
+	SilentTimeTrack = true
+	b.SetBytes(int64(sizeOfInt))
+
+	if err := CheckSum(b.N, ConsumeSlices(GenerateSlices(b.N, batch), batch, b.N)); err != nil {
+		b.Error(err)
+	}
 
 }
-func BenchmarkChanIntPointer(b *testing.B) {
-	ch := make(chan *int)
-	go func() {
-		for i := 0; i < b.N; i++ {
-			ch <- &i
-		}
-		close(ch)
-	}()
-	sum := 0
-	for i := range ch {
-		sum += *i
-	}
+
+func BenchmarkChanIntSlices1(b *testing.B) {
+	benchForSliceSize(1, b)
 }
-func BenchmarkChanIntSlices(b *testing.B) {
-	batch := 10
-	ch := make(chan []int)
-	go func() {
-		slice := make([]int, 0, batch)
-		for i := 0; i < b.N; i++ {
-			slice = append(slice, i)
-			if len(slice) == cap(slice) {
-				ch <- slice
-				slice = make([]int, 0, batch)
-			}
-		}
-		ch <- slice
-		close(ch)
-	}()
-	sum := 0
-	for slice := range ch {
-		for _, i := range slice {
-			sum += i
-		}
-	}
+func BenchmarkChanIntSlices10(b *testing.B) {
+	benchForSliceSize(10, b)
+}
+func BenchmarkChanIntSlices100(b *testing.B) {
+	benchForSliceSize(100, b)
+}
+func BenchmarkChanIntSlices1000(b *testing.B) {
+	benchForSliceSize(1000, b)
+}
+func BenchmarkChanIntSlices10000(b *testing.B) {
+	benchForSliceSize(10000, b)
 }

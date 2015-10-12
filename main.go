@@ -3,99 +3,48 @@ package main
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"runtime"
 )
 import "time"
 
 const (
-	// how many ints we'll send across the channel
-	count int = 1e7
+// how many ints we'll send across the channel
+// count int = 1e7
 )
 
-func GenerateInts(n int) chan int {
-	ch := make(chan int)
-	go func() {
-		for i := 1; i <= n; i++ {
-			ch <- i
-		}
-		close(ch)
-	}()
-	return ch
-}
+var (
+	SilentTimeTrack  bool = false // to silence TimeTrack for Benchmarks
+	anInt            int  = 0
+	sizeOfInt        int  = int(reflect.TypeOf(anInt).Size())
+	sizeOfIntPointer int  = int(reflect.TypeOf(&anInt).Size())
+)
 
-func ConsumeInts(ch <-chan int) int {
-	defer TimeTrack(time.Now(), "int", count)
-	sum := 0
-	for i := range ch {
-		sum += i
-	}
-	return sum
-}
-
-func GenerateIntPointers(n int) chan *int {
-	ch := make(chan *int)
-	go func() {
-		for i := 1; i <= n; i++ {
-			ii := i // cant send i's address?
-			ch <- &ii
-		}
-		close(ch)
-	}()
-	return ch
-}
-
-func ConsumeIntPointers(ch <-chan *int) int {
-	defer TimeTrack(time.Now(), "*int", count)
-	sum := 0
-	for i := range ch {
-		sum += *i
-	}
-	return sum
-}
-
-func GenerateSlices(n int, batch int) chan []int {
-	ch := make(chan []int)
-	go func() {
-		slice := make([]int, 0, batch)
-		for i := 1; i <= n; i++ {
-			slice = append(slice, i)
-			if len(slice) == cap(slice) {
-				ch <- slice
-				slice = make([]int, 0, batch)
-			}
-		}
-		ch <- slice
-		close(ch)
-	}()
-	return ch
-}
-
-func ConsumeSlices(ch <-chan []int, batch int) int {
-	defer TimeTrack(time.Now(), fmt.Sprintf("[%d]int", batch), count)
-	sum := 0
-	for slice := range ch {
-		for _, i := range slice {
-			sum += i
-		}
-	}
-	return sum
-}
-
-func Check_sum(n int, sum int) {
-	expected := count * (count + 1) / 2
+func CheckSum(n int, sum int) error {
+	expected := n * (n + 1) / 2
+	var err error
 	ok := sum == expected
 	if !ok {
-		log.Fatalf("Expected %d got %d", expected, sum)
+		err = fmt.Errorf("Expected %d got %d", expected, sum)
 	}
-
+	return err
 }
 
-func TimeTrack(start time.Time, what string, count int) {
+func CheckSumErr(n int, sum int) {
+	if err := CheckSum(n, sum); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func TimeTrack(start time.Time, what string, n int) {
+	if SilentTimeTrack {
+		return
+	}
 	name := fmt.Sprintf("Chanel of %10s", what)
 	elapsed := time.Since(start)
-	if count > 0 {
-		rate := float64(count) / elapsed.Seconds()
-		log.Printf("%s took %s, count: %d rate: %.1e/s", name, elapsed, count, rate)
+	if n > 0 {
+		rate := float64(n) / elapsed.Seconds()
+		log.Printf("%s n: %d rate: %.1e/s time: %s", name, n, rate, elapsed)
 	} else {
 		log.Printf("%s took %s", name, elapsed)
 	}
@@ -103,28 +52,16 @@ func TimeTrack(start time.Time, what string, count int) {
 
 func main() {
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
+	fmt.Printf("Sizeof(int): %d\n", sizeOfInt)
 
-	// ch_i := GenerateInts(count)
-	// sum := ConsumeInts(ch_i)
-	// Check_sum(sum)
+	var count int = 1e7
 
-	Check_sum(count, ConsumeInts(GenerateInts(count)))
-	Check_sum(count, ConsumeIntPointers(GenerateIntPointers(count)))
-	Check_sum(count, ConsumeSlices(GenerateSlices(count, 1), 1))
-	Check_sum(count, ConsumeSlices(GenerateSlices(count, 10), 10))
-	Check_sum(count, ConsumeSlices(GenerateSlices(count, 100), 100))
-	Check_sum(count, ConsumeSlices(GenerateSlices(count, 1e3), 1e3))
-	Check_sum(count, ConsumeSlices(GenerateSlices(count, 1e4), 1e4))
+	CheckSumErr(count, ConsumeInts(GenerateInts(count), count))
+	CheckSumErr(count, ConsumeIntPointers(GenerateIntPointers(count), count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1), 1, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 10), 10, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 100), 100, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e3), 1e3, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e4), 1e4, count))
 
-	// start := time.Now()
-	// ch := GenerateSlices(count, batch)
-	// sum := 0
-	// for slice := range ch {
-	// 	for _, i := range slice {
-	// 		sum += i
-	// 	}
-	// }
-	// elapsed := time.Since(start)
-	// ok := sum == count*(count+1)/2
-	// fmt.Printf("sum 1..%d: %d (sum verified:%v) took %s\n", count, sum, ok, elapsed)
 }
