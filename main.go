@@ -67,6 +67,7 @@ func main() {
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e3), 1e3, count))
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e4), 1e4, count))
 
+	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1), 1, count))
 	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e3), 1e3, count))
 
 }

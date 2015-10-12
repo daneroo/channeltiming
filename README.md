@@ -1,9 +1,21 @@
 # Channel Communications Timing Experiment
 
 ## TODO
-- Refactor main (to reuse in tests)
-- Make tests pass (including Benchmarks)
 
+- Sync.pool (Olivier Gagnon Gophers-Slack/#golang-newbies)
+  https://play.golang.org/p/bgG5tEh5tq
+  https://play.golang.org/p/MsFkuoWMOk
+
+## Running the experiment 
+
+    # to run as main
+    go run main.go of*.go
+
+    # run tests
+    go test -v
+
+    # run tests and benchmarks
+    go test --bench .
 
 ## Presentation
 Question:
