@@ -61,13 +61,16 @@ func main() {
 
 	CheckSumErr(count, ConsumeInts(GenerateInts(count), count))
 	CheckSumErr(count, ConsumeIntPointers(GenerateIntPointers(count), count))
-	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1), 1, count))
-	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 10), 10, count))
-	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 100), 100, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e0), 1e0, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e2), 1e1, count))
+	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e2), 1e2, count))
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e3), 1e3, count))
 	CheckSumErr(count, ConsumeSlices(GenerateSlices(count, 1e4), 1e4, count))
 
-	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1), 1, count))
+	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e0), 1e0, count))
+	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e1), 1e1, count))
+	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e2), 1e2, count))
 	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e3), 1e3, count))
+	CheckSumErr(count, ConsumeEntries(GenerateEntries(count, 1e4), 1e4, count))
 
 }
