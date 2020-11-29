@@ -44,7 +44,7 @@ func TestChanInSlices100(t *testing.T) {
 
 func BenchmarkSum(b *testing.B) {
 	SilentTimeTrack = true
-	b.SetBytes(int64(sizeOfInt))
+	b.SetBytes(int64(SizeOfInt))
 	if err := baselineSum(b.N); err != nil {
 		b.Error(err)
 	}
@@ -52,7 +52,7 @@ func BenchmarkSum(b *testing.B) {
 
 func BenchmarkChanInt(b *testing.B) {
 	SilentTimeTrack = true
-	b.SetBytes(int64(sizeOfInt))
+	b.SetBytes(int64(SizeOfInt))
 	if err := CheckSum(b.N, ConsumeInts(GenerateInts(b.N), b.N)); err != nil {
 		b.Error(err)
 	}
@@ -60,7 +60,7 @@ func BenchmarkChanInt(b *testing.B) {
 
 func BenchmarkChanIntPointer(b *testing.B) {
 	SilentTimeTrack = true
-	b.SetBytes(int64(sizeOfIntPointer))
+	b.SetBytes(int64(SizeOfIntPointer))
 	if err := CheckSum(b.N, ConsumeIntPointers(GenerateIntPointers(b.N), b.N)); err != nil {
 		b.Error(err)
 	}
@@ -68,7 +68,7 @@ func BenchmarkChanIntPointer(b *testing.B) {
 
 func benchForSliceSize(batch int, b *testing.B) {
 	SilentTimeTrack = true
-	b.SetBytes(int64(sizeOfInt))
+	b.SetBytes(int64(SizeOfInt))
 
 	if err := CheckSum(b.N, ConsumeSlices(GenerateSlices(b.N, batch), batch, b.N)); err != nil {
 		b.Error(err)
@@ -91,11 +91,41 @@ func BenchmarkChanIntSlices10000(b *testing.B) {
 	benchForSliceSize(10000, b)
 }
 
-func BenchmarkChanEntries1000(b *testing.B) {
+func BenchmarkChanEntries(b *testing.B) {
 	SilentTimeTrack = true
-	b.SetBytes(int64(sizeOfInt))
-	batch := 1000
-	if err := CheckSum(b.N, ConsumeEntries(GenerateEntries(b.N, batch), batch, b.N)); err != nil {
+	b.SetBytes(int64(SizeOfEntry))
+	if err := CheckSum(b.N, ConsumeEntries(GenerateEntries(b.N), b.N)); err != nil {
 		b.Error(err)
 	}
+}
+
+func benchForSliceEntrySize(batch int, b *testing.B) {
+	SilentTimeTrack = true
+	b.SetBytes(int64(SizeOfEntry))
+
+	if err := CheckSum(b.N, ConsumeEntrySlices(GenerateEntrySlices(b.N, batch), batch, b.N)); err != nil {
+		b.Error(err)
+	}
+}
+
+func BenchmarkChanEntrySlices1(b *testing.B) {
+	benchForSliceEntrySize(1, b)
+}
+func BenchmarkChanEntrySlices10(b *testing.B) {
+	benchForSliceEntrySize(10, b)
+}
+func BenchmarkChanEntrySlices100(b *testing.B) {
+	benchForSliceEntrySize(100, b)
+}
+func BenchmarkChanEntrySlices200(b *testing.B) {
+	benchForSliceEntrySize(200, b)
+}
+func BenchmarkChanEntrySlices500(b *testing.B) {
+	benchForSliceEntrySize(500, b)
+}
+func BenchmarkChanEntrySlices1000(b *testing.B) {
+	benchForSliceEntrySize(1000, b)
+}
+func BenchmarkChanEntrySlices10000(b *testing.B) {
+	benchForSliceEntrySize(10000, b)
 }

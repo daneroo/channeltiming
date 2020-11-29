@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// GenerateIntPointers is ...
 func GenerateIntPointers(n int) chan *int {
 	ch := make(chan *int)
 	go func() {
@@ -16,6 +17,7 @@ func GenerateIntPointers(n int) chan *int {
 	return ch
 }
 
+// ConsumeIntPointers is ...
 func ConsumeIntPointers(ch <-chan *int, expect int) int {
 	defer TimeTrack(time.Now(), "*int", expect)
 	sum := 0

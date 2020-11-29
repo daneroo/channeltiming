@@ -10,16 +10,29 @@ import (
 
 var (
 	// SilentTimeTrack is used to silence TimeTrack for Benchmarks
-	SilentTimeTrack  bool = false
-	anInt            int  = 0
-	sizeOfInt        int  = int(reflect.TypeOf(anInt).Size())
-	sizeOfIntPointer int  = int(reflect.TypeOf(&anInt).Size())
+	SilentTimeTrack bool  = false
+	anInt           int   = 0
+	anEntry         Entry = Entry{}
+	// SizeOfInt is the size of an in in bytes
+	SizeOfInt int = int(reflect.TypeOf(anInt).Size())
+	// SizeOfIntPointer is the size of an in in bytes
+	SizeOfIntPointer int = int(reflect.TypeOf(&anInt).Size())
+	// SizeOfEntry is the size of an in in bytes
+	SizeOfEntry int = int(reflect.TypeOf(anEntry).Size())
 )
+
+// Entry is ...
+type Entry struct {
+	Stamp time.Time
+	Watt  int
+}
 
 // PrintSizes is ...
 func PrintSizes() {
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
-	fmt.Printf("Sizeof(int): %d\n", sizeOfInt)
+	fmt.Printf("Sizeof(int): %d\n", SizeOfInt)
+	fmt.Printf("Sizeof(&int): %d\n", SizeOfInt)
+	fmt.Printf("Sizeof(Entry): %d\n", SizeOfEntry)
 	fmt.Printf("time.Unix(1e7): %v\n", time.Unix(1e7, 0))
 	fmt.Printf("time.Unix(1e8): %v\n", time.Unix(1e8, 0))
 	fmt.Printf("time.Unix(1e9): %v\n", time.Unix(1e9, 0))
@@ -53,7 +66,15 @@ func TimeTrack(start time.Time, what string, n int) {
 	elapsed := time.Since(start)
 	if n > 0 {
 		rate := float64(n) / elapsed.Seconds()
-		log.Printf("%s n: %d rate: %.1e/s time: %s", name, n, rate, elapsed)
+		units := "/s"
+		if rate > 1e6 {
+			rate /= 1e6
+			units = "M/s"
+		} else if rate > 1e3 {
+			rate /= 1e3
+			units = "k/s"
+		}
+		log.Printf("%s n: %d rate: %6.1f%s time: %s", name, n, rate, units, elapsed)
 	} else {
 		log.Printf("%s took %s", name, elapsed)
 	}

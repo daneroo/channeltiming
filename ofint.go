@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// GenerateInts is ...
 func GenerateInts(n int) chan int {
 	ch := make(chan int)
 	go func() {
@@ -15,6 +16,7 @@ func GenerateInts(n int) chan int {
 	return ch
 }
 
+// ConsumeInts is ...
 func ConsumeInts(ch <-chan int, expect int) int {
 	defer TimeTrack(time.Now(), "int", expect)
 	sum := 0

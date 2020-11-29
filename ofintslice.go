@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// GenerateSlices is ...
 func GenerateSlices(n int, batch int) chan []int {
 	ch := make(chan []int)
 	go func() {
@@ -22,6 +23,7 @@ func GenerateSlices(n int, batch int) chan []int {
 	return ch
 }
 
+// ConsumeSlices is ...
 func ConsumeSlices(ch <-chan []int, batch int, expect int) int {
 	defer TimeTrack(time.Now(), fmt.Sprintf("[%d]int", batch), expect)
 	sum := 0
